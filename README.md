@@ -197,8 +197,3 @@ The tests cover request validation, PDF generation, failure isolation, job statu
 
 Potential improvements include durable background queues, authentication and role-based access control, cloud-based certificate storage, configurable templates, and automatic recovery of interrupted jobs.
 
-## License
-
-MIT License.
-
-**Developed for the Aero Company Technical Shortlisting Assignment.**
