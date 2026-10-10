@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CertiFlow — Bulk Certificate Generation & Tracking</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-crest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 4 14.5 9.5 20.5 10 16 14.5 17.5 20.5 12 17.5 6.5 20.5 8 14.5 3.5 10 9.5 9.5 12 4" fill="var(--gold-primary)" stroke="none"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">CertiFlow</span>
+          <span class="brand-tag">Bulk Engine</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu" aria-label="Main Navigation">
+        <button class="nav-item active" data-view="dashboard">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="create-job">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span>Create Generation Job</span>
+        </button>
+        <button class="nav-item" data-view="jobs">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Generation Jobs</span>
+        </button>
+        <button class="nav-item" data-view="certificates">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span>Certificate Vault</span>
+        </button>
+        <button class="nav-item" data-view="preview">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Template Preview</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status">
+          <div class="status-indicator online" id="systemStatusDot"></div>
+          <span class="status-label" id="systemStatusText">API Online</span>
+        </div>
+        <div class="sidebar-links">
+          <a href="/docs" target="_blank" class="footer-link">Swagger Docs</a>
+          <span class="dot-separator">•</span>
+          <a href="/redoc" target="_blank" class="footer-link">ReDoc</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-title-wrapper">
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <p class="page-subtitle" id="pageSubtitle">High-volume personalized document synthesis and delivery</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" id="btnRefreshCurrent">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh Data
+          </button>
+          <button class="btn btn-primary" id="btnTopCreateJob">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Job
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: DASHBOARD -->
+      <section class="view-section active" id="viewDashboard">
+        <!-- KPI Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Total Jobs</span>
+              <span class="metric-badge">All-Time</span>
+            </div>
+            <div class="metric-value" id="kpiTotalJobs">-</div>
+            <div class="metric-footer">Bulk execution requests</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Generated Certificates</span>
+              <span class="metric-badge success">Delivered</span>
+            </div>
+            <div class="metric-value success" id="kpiTotalGenerated">-</div>
+            <div class="metric-footer">PDFs created and ready</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">In Progress</span>
+              <span class="metric-badge warning">Active</span>
+            </div>
+            <div class="metric-value warning" id="kpiInProgress">-</div>
+            <div class="metric-footer">Queued & rendering</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Failed Recipients</span>
+              <span class="metric-badge danger">Errors</span>
+            </div>
+            <div class="metric-value danger" id="kpiTotalFailed">-</div>
+            <div class="metric-footer">Isolated validation or render errors</div>
+          </div>
+        </div>
+
+        <!-- Recent Jobs Section -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Recent Generation Jobs</h2>
+              <p class="panel-subtitle">Monitor live execution states and download batches</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btnViewAllJobs">View All Jobs</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="dashboardJobsTable">
+              <thead>
+                <tr>
+                  <th>Job ID</th>
+                  <th>Course / Event</th>
+                  <th>Status</th>
+                  <th>Recipients</th>
+                  <th>Progress</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardJobsTbody">
+                <tr><td colspan="7" class="table-loading">Loading recent jobs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: CREATE JOB -->
+      <section class="view-section" id="viewCreateJob">
+        <div class="create-job-container">
+          <div class="panel form-panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Job Configuration</h2>
+                <p class="panel-subtitle">Step 1: Set up credential details and signatory credentials</p>
+              </div>
+            </div>
+
+            <form id="createJobForm" novalidate>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="inputTitle" class="form-label">Certificate Title <span class="required">*</span></label>
+                  <input type="text" id="inputTitle" class="form-control" value="Certificate of Completion" required placeholder="e.g. Certificate of Completion">
+                </div>
+                <div class="form-group">
+                  <label for="inputCourse" class="form-label">Course or Event Name <span class="required">*</span></label>
+                  <input type="text" id="inputCourse" class="form-control" value="Python Development Bootcamp" required placeholder="e.g. Full-Stack Python Mastery">
+                </div>
+                <div class="form-group">
+                  <label for="inputOrg" class="form-label">Issuing Organization <span class="required">*</span></label>
+                  <input type="text" id="inputOrg" class="form-control" value="Aero Learning Academy" required placeholder="e.g. Aero Academy of Engineering">
+                </div>
+                <div class="form-group">
+                  <label for="inputDate" class="form-label">Completion / Issue Date <span class="required">*</span></label>
+                  <input type="text" id="inputDate" class="form-control" value="2026-10-09" required placeholder="YYYY-MM-DD">
+                </div>
+                <div class="form-group">
+                  <label for="inputSignatory" class="form-label">Signatory Name <span class="required">*</span></label>
+                  <input type="text" id="inputSignatory" class="form-control" value="Program Director" required placeholder="e.g. Dr. Arvind Rao">
+                </div>
+                <div class="form-group">
+                  <label for="inputSignatoryTitle" class="form-label">Signatory Title</label>
+                  <input type="text" id="inputSignatoryTitle" class="form-control" value="Dean of Engineering & Certifications" placeholder="e.g. Authorized Signatory">
+                </div>
+              </div>
+
+              <div class="section-divider"></div>
+
+              <!-- Recipient Input Modes -->
+              <div class="recipients-section-header">
+                <div>
+                  <h2 class="panel-title">Recipient Roster</h2>
+                  <p class="panel-subtitle">Step 2: Add recipients manually or import via standard CSV (Max 500 per batch)</p>
+                </div>
+                <div class="roster-toolbar">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadSampleCsv">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download Sample CSV
+                  </button>
+                  <label class="btn btn-secondary btn-sm csv-upload-btn">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Import CSV
+                    <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
+                  </label>
+                  <button type="button" class="btn btn-primary btn-sm" id="btnAddRecipientRow">
+                    + Add Row
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recipient Table -->
+              <div class="table-responsive recipients-table-wrapper">
+                <table class="data-table" id="recipientsInputTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px;">#</th>
+                      <th>Recipient Full Name <span class="required">*</span></th>
+                      <th>Email Address <span class="required">*</span></th>
+                      <th>Unique Certificate ID <span class="required">*</span></th>
+                      <th style="width: 70px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recipientsInputTbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="roster-stats-bar">
+                <span id="recipientCountDisplay">Recipients: <strong>0</strong> (Limit: 500)</span>
+                <span id="clientValidationStatus" class="validation-status"></span>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="btnResetJobForm">Clear All</button>
+                <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitJob">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Initiate Bulk Generation Job
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: JOBS LIST -->
+      <section class="view-section" id="viewJobs">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Generation Jobs Registry</h2>
+              <p class="panel-subtitle">Filter, search and track batch generation lifecycles</p>
+            </div>
+            <div class="filter-controls">
+              <input type="text" id="jobsSearchInput" class="form-control form-control-sm" placeholder="Search by ID, course, org...">
+              <select id="jobsStatusFilter" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="queued">Queued</option>
+                <option value="processing">Processing</option>
+                <option value="completed">Completed</option>
+                <option value="completed_with_errors">Completed With Errors</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Job ID</th>
+                  <th>Course / Program</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Success</th>
+                  <th>Failed</th>
+                  <th>Progress</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jobsListTbody">
+                <tr><td colspan="9" class="table-loading">Loading jobs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: JOB DETAILS -->
+      <section class="view-section" id="viewJobDetails">
+        <div class="job-details-header">
+          <button class="btn btn-secondary btn-sm" id="btnBackToJobs">
+            ← Back to Jobs
+          </button>
+          <div class="job-details-title-row">
+            <div>
+              <h2 class="job-id-title" id="jobDetailId">Job Details</h2>
+              <div class="job-meta-chips" id="jobDetailMetaChips"></div>
+            </div>
+            <div class="job-actions-right" style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" id="btnExportJobCsv">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                Export Excel / CSV
+              </button>
+              <button class="btn btn-primary" id="btnDownloadJobZip" disabled>
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download All (ZIP)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="panel progress-panel">
+          <div class="progress-info-row">
+            <div>
+              <span class="progress-title">Generation Progress</span>
+              <span class="progress-percentage-display" id="jobDetailProgressPct">0%</span>
+            </div>
+            <div class="counts-badge-group">
+              <span class="chip chip-success" id="chipCompletedCount">Completed: 0</span>
+              <span class="chip chip-danger" id="chipFailedCount">Failed: 0</span>
+              <span class="chip chip-warning" id="chipProcessingCount">Processing: 0</span>
+              <span class="chip chip-neutral" id="chipPendingCount">Pending: 0</span>
+            </div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="jobDetailProgressBar" style="width: 0%;"></div>
+          </div>
+          <div class="polling-indicator" id="jobPollingIndicator">
+            <div class="pulse-dot"></div>
+            <span>Auto-refreshing status...</span>
+          </div>
+        </div>
+
+        <!-- Recipient Breakdown Table -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3 class="panel-title">Recipients Breakdown</h3>
+              <p class="panel-subtitle">Individual certificate status and failure root-cause analysis</p>
+            </div>
+            <div class="filter-controls">
+              <input type="text" id="jobRecipientsSearch" class="form-control form-control-sm" placeholder="Search recipients...">
+              <select id="jobRecipientsFilter" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="processing">Processing</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Recipient Name</th>
+                  <th>Email</th>
+                  <th>Certificate ID</th>
+                  <th>Status</th>
+                  <th>Error / Failure Detail</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jobRecipientsTbody">
+                <tr><td colspan="6" class="table-loading">Loading recipient records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: CERTIFICATES EXPLORER -->
+      <section class="view-section" id="viewCertificates">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Master Certificate Vault</h2>
+              <p class="panel-subtitle">Search, inspect and download all generated certificates across jobs</p>
+            </div>
+            <div class="filter-controls">
+              <input type="text" id="certSearchInput" class="form-control form-control-sm" placeholder="Search by recipient, email, ID...">
+              <select id="certStatusFilter" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" id="btnExportMasterCsv">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Excel / CSV
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Certificate ID</th>
+                  <th>Recipient Name</th>
+                  <th>Email</th>
+                  <th>Course Name</th>
+                  <th>Status</th>
+                  <th>Issued Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="certificatesListTbody">
+                <tr><td colspan="7" class="table-loading">Loading certificates...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: CERTIFICATE PREVIEW -->
+      <section class="view-section" id="viewPreview">
+        <div class="preview-layout">
+          <div class="preview-card">
+            <div class="preview-toolbar">
+              <div class="preview-status-tag">
+                <span class="preview-badge">OFFICIAL TEMPLATE SPECIFICATION</span>
+                <span class="preview-sub">Standard Landscape Letter Format (Navy • Ivory • Gold)</span>
+              </div>
+              <a href="/api/v1/certificates/preview/sample" target="_blank" class="btn btn-secondary btn-sm">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Open Raw PDF
+              </a>
+            </div>
+
+            <!-- PDF Viewer Iframe -->
+            <div class="pdf-frame-wrapper">
+              <iframe id="pdfPreviewIframe" src="/api/v1/certificates/preview/sample" title="Certificate PDF Preview"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Generation Job</h3>
+        <button class="modal-close" id="btnModalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="modalContent">
+        <!-- Rendered confirmation overview -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btnModalCancel">Cancel & Edit</button>
+        <button class="btn btn-primary" id="btnModalConfirm">Confirm & Start Generation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
